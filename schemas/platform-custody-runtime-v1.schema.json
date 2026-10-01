@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "crowsi://platform-custody/runtime/v1",
+  "title": "Crowsi platform custody runtime v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "kind",
+    "namespace",
+    "helper_path",
+    "helper_sha256",
+    "protocol_version"
+  ],
+  "properties": {
+    "schema": { "const": "crowsi://platform-custody/runtime/v1" },
+    "kind": { "const": "windows-dpapi-user" },
+    "namespace": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9._-]+$"
+    },
+    "helper_path": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 4096,
+      "pattern": "^/"
+    },
+    "helper_sha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "protocol_version": { "const": "crowsi-windows-custody-v1" }
+  }
+}

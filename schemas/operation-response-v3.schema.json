@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "crowsi://platform-custody/operation-response/v3",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "request_id", "credential_id", "revision", "result",
+    "contains_secret_values", "secret_follows"
+  ],
+  "properties": {
+    "schema": { "const": "crowsi://platform-custody/operation-response/v3" },
+    "request_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "credential_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "revision": { "type": "string", "pattern": "^rev1:[0-9a-f]{64}$" },
+    "result": {
+      "oneOf": [
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["kind", "algorithm", "value_hex"],
+          "properties": {
+            "kind": { "const": "signature" },
+            "algorithm": { "enum": ["rsa-pkcs1-sha256", "ed25519"] },
+            "value_hex": { "$ref": "#/$defs/output" }
+          }
+        },
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["kind", "provider", "operation", "value_hex"],
+          "properties": {
+            "kind": { "const": "provider-result" },
+            "provider": { "const": "github" },
+            "operation": { "const": "sign-app-jwt" },
+            "value_hex": { "$ref": "#/$defs/output" }
+          }
+        }
+      ]
+    },
+    "contains_secret_values": { "const": false },
+    "secret_follows": { "const": false }
+  },
+  "$defs": {
+    "output": { "type": "string", "minLength": 2, "maxLength": 16384, "pattern": "^[0-9a-f]+$" }
+  }
+}

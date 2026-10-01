@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "crowsi://platform-custody/operation-trust/v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "pa_key_id", "pa_public_key_hex", "status_issuer",
+    "status_key_id", "status_public_key_hex"
+  ],
+  "properties": {
+    "schema": { "const": "crowsi://platform-custody/operation-trust/v1" },
+    "pa_key_id": { "$ref": "#/$defs/id" },
+    "pa_public_key_hex": { "$ref": "#/$defs/ed25519Key" },
+    "status_issuer": { "$ref": "#/$defs/id" },
+    "status_key_id": { "$ref": "#/$defs/id" },
+    "status_public_key_hex": { "$ref": "#/$defs/ed25519Key" }
+  },
+  "$defs": {
+    "id": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[A-Za-z0-9._:-]+$" },
+    "ed25519Key": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+  }
+}

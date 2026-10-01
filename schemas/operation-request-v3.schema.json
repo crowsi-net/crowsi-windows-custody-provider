@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "crowsi://platform-custody/operation-request/v3",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "request_id", "credential_id", "expected_revision", "credential_class",
+    "action", "current_device_status", "pa_authorization"
+  ],
+  "properties": {
+    "schema": { "const": "crowsi://platform-custody/operation-request/v3" },
+    "request_id": { "$ref": "#/$defs/id" },
+    "credential_id": { "$ref": "#/$defs/id" },
+    "expected_revision": { "type": "string", "pattern": "^rev1:[0-9a-f]{64}$" },
+    "credential_class": {
+      "enum": ["rsa-signing-key", "ed25519-signing-key", "provider-operation"]
+    },
+    "action": {
+      "oneOf": [
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["kind", "algorithm", "digest_sha256"],
+          "properties": {
+            "kind": { "const": "sign" },
+            "algorithm": { "enum": ["rsa-pkcs1-sha256", "ed25519"] },
+            "digest_sha256": { "$ref": "#/$defs/digest" }
+          }
+        },
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["kind", "provider", "operation", "input_digest_sha256"],
+          "properties": {
+            "kind": { "const": "provider-operation" },
+            "provider": { "const": "github" },
+            "operation": { "const": "sign-app-jwt" },
+            "input_digest_sha256": { "$ref": "#/$defs/digest" }
+          }
+        }
+      ]
+    },
+    "current_device_status": { "$ref": "ihat://identity/current-device-status/v1" },
+    "pa_authorization": { "$ref": "#/$defs/authorization" }
+  },
+  "$defs": {
+    "id": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[A-Za-z0-9._:-]+$" },
+    "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "authorization": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "schema", "issuer", "key_id", "binding", "issued_at_epoch_s",
+        "expires_at_epoch_s", "signature_hex"
+      ],
+      "properties": {
+        "schema": { "const": "crowsi://platform-custody/operation-authorization/v3" },
+        "issuer": { "const": "crowsi-policy-administrator" },
+        "key_id": { "$ref": "#/$defs/id" },
+        "binding": { "$ref": "#/$defs/binding" },
+        "issued_at_epoch_s": { "type": "integer", "minimum": 1 },
+        "expires_at_epoch_s": { "type": "integer", "minimum": 1 },
+        "signature_hex": { "type": "string", "pattern": "^[0-9a-f]{128}$" }
+      }
+    },
+    "binding": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "service_id", "pairwise_subject", "device_id", "device_proof_key_ref", "session_ref",
+        "device_posture", "device_posture_revision", "subject_revocation_epoch",
+        "service_revocation_epoch", "device_revocation_epoch", "session_revocation_epoch",
+        "workload_id", "audience", "action", "request_digest_sha256", "nonce"
+      ],
+      "properties": {
+        "service_id": { "const": "service:crowsi" },
+        "pairwise_subject": { "$ref": "#/$defs/id" },
+        "device_id": { "$ref": "#/$defs/id" },
+        "device_proof_key_ref": { "type": "string", "minLength": 1, "maxLength": 240 },
+        "session_ref": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "device_posture": { "const": "compliant" },
+        "device_posture_revision": { "type": "integer", "minimum": 1 },
+        "subject_revocation_epoch": { "type": "integer", "minimum": 0 },
+        "service_revocation_epoch": { "type": "integer", "minimum": 0 },
+        "device_revocation_epoch": { "type": "integer", "minimum": 0 },
+        "session_revocation_epoch": { "type": "integer", "minimum": 0 },
+        "workload_id": { "const": "workload:crowsi-windows-custody" },
+        "audience": { "const": "crowsi-windows-custody-provider" },
+        "action": { "type": "string", "minLength": 1, "maxLength": 192 },
+        "request_digest_sha256": { "$ref": "#/$defs/digest" },
+        "nonce": { "$ref": "#/$defs/id" }
+      }
+    }
+  }
+}

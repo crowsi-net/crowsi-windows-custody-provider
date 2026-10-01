@@ -1,0 +1,97 @@
+[package]
+exclude = ["/registration/**", "/state/**", "/.local/**", "/.state/**", "/.data/**", "/secrets/**", "/credentials/**", "/.env", "/.env.production", "/.env.local", "/*.tgz", "/*.tar.gz", "/*.tar", "/*.zip", "/*.whl", "/*.crate", "/.ruff_cache/**", "/.mypy_cache/**", "/.tox/**", "/.nox/**", "/.hypothesis/**", "/.coverage", "/.coverage.*", "/htmlcov/**", "/lcov.info", "/junit.xml", "/*.profraw", "/*.profdata", "/*.egg-info/**", "/target/**", "/node_modules/**", "/dist/**", "/build/**", "/.cache/**", "/.pytest_cache/**", "/coverage/**"]
+name = "crowsi-windows-custody-provider"
+version = "0.10.0"
+edition = "2024"
+rust-version = "1.97"
+description = "Bounded WSL-to-Windows DPAPI CurrentUser credential custody"
+license = "Apache-2.0"
+readme = "README.md"
+publish = ["ecosystem-private"]
+autotests = false
+default-run = "crowsi-windows-custody-provider"
+repository = "https://github.com/crowsi-net/crowsi-windows-custody-provider"
+
+[features]
+default = ["operation-only"]
+operation-only = ["dep:ihat-identity-assertion-contracts"]
+
+[package.metadata.crowsi]
+boundary = "windows-owner-local-credential-custody"
+transport = "bounded-stdio-frames"
+secret-output = false
+secret-transport = "anonymous-stdio"
+
+[workspace]
+members = ["."]
+resolver = "3"
+
+[dependencies]
+base64 = "=0.22.1"
+ed25519-dalek = "=2.2.0"
+getrandom = "=0.3.4"
+hex = "=0.4.3"
+ihat-identity-assertion-contracts = { version = "=0.10.0", registry = "ecosystem-private", optional = true }
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "=1.0.151"
+sha2 = "=0.10.9"
+thiserror = "=2.0.18"
+zeroize = "=1.8.2"
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "=0.61.2", features = [
+  "Win32_Foundation",
+  "Win32_Security_Cryptography",
+  "Win32_Storage_FileSystem",
+  "Win32_System_Com",
+  "Win32_UI_Shell",
+] }
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2.186"
+
+[dev-dependencies]
+static_assertions = "=1.1.0"
+tempfile = "=3.27.0"
+
+[[bin]]
+name = "crowsi-windows-custody-provider"
+path = "src/bin/provider.rs"
+
+[[test]]
+name = "contracts"
+path = "tests/contracts.rs"
+
+[[test]]
+name = "client-contracts"
+path = "tests/client_contracts.rs"
+
+[[test]]
+name = "secret-transport"
+path = "tests/secret_transport.rs"
+
+[[test]]
+name = "windows-dpapi-live"
+path = "tests/windows_dpapi_live.rs"
+
+[[test]]
+name = "operation-only"
+path = "tests/operation_only.rs"
+
+[[test]]
+name = "production-operation-path"
+path = "tests/production_operation_path.rs"
+
+[[test]]
+name = "operation-recovery"
+path = "tests/operation_recovery.rs"
+
+[lints.rust]
+unsafe_code = "deny"
+
+[lints.clippy]
+all = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
+dbg_macro = "deny"
+todo = "deny"
+unwrap_used = "deny"

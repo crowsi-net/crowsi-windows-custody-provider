@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "crowsi://platform-custody/cng-key-registry/v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "credentials"],
+  "properties": {
+    "schema": { "const": "crowsi://platform-custody/cng-key-registry/v1" },
+    "credentials": {
+      "type": "array", "minItems": 1, "maxItems": 256,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["credential_id", "revision", "credential_class", "provider_name", "key_name"],
+        "properties": {
+          "credential_id": { "$ref": "#/$defs/id" },
+          "revision": { "type": "string", "pattern": "^rev1:[0-9a-f]{64}$" },
+          "credential_class": {
+            "enum": ["rsa-signing-key", "ed25519-signing-key", "provider-operation"]
+          },
+          "provider_name": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[A-Za-z0-9 ._:-]+$" },
+          "key_name": { "type": "string", "minLength": 1, "maxLength": 240, "pattern": "^[A-Za-z0-9 ._:-]+$" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "id": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[A-Za-z0-9._:-]+$" }
+  }
+}
